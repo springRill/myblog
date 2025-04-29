@@ -14,12 +14,13 @@ public class Post {
     private Integer likesCount = 0;
     private List<Comment> comments = new ArrayList<>();
 
-    public Post(Long id, String title, String text, String tags, String imagePath) {
+    public Post(Long id, String title, String text, String tags, String imagePath, Integer likesCount) {
         this.id = id;
         this.title = title;
         this.text = text;
         this.tags = tags;
         this.imagePath = imagePath;
+        this.likesCount = likesCount;
     }
 
     public Long getId() {
@@ -86,8 +87,11 @@ public class Post {
         return comments;
     }
 
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     public List<String> getTextParts() {
-        List<String> splitedPost = List.of(text.split("\r\n"));
-        return splitedPost;
+        return List.of(text.split("\r\n"));
     }
 }

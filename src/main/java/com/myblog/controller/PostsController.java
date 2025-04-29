@@ -5,7 +5,6 @@ import com.myblog.model.Post;
 import com.myblog.service.ImageService;
 import com.myblog.service.PostService;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -13,18 +12,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Controller
 public class PostsController {
 
-    private final ResourceLoader resourceLoader;
     private final ImageService imageService;
     private final PostService postService;
 
-    public PostsController(ResourceLoader resourceLoader, ImageService imageService, PostService postService) {
-        this.resourceLoader = resourceLoader;
+    public PostsController(ImageService imageService, PostService postService) {
         this.imageService = imageService;
         this.postService = postService;
     }
@@ -68,11 +64,11 @@ public class PostsController {
     public String createPost(@RequestParam(name = "title") String title,
                              @RequestParam(name = "image") MultipartFile image,
                              @RequestParam(name = "tags") String tags,
-                             @RequestParam(name = "text") String text) throws IOException {
+                             @RequestParam(name = "text") String text) {
 
         String fileName = imageService.uploadImage(image);
-        Post post = new Post(null, title, text, tags, fileName);
-        Long id = postService.addPost(post).getId();
+        Post post = new Post(null, title, text, tags, fileName, 0);
+        Long id = postService.addPost(post);
         return "redirect:/posts/%d".formatted(id);
     }
 
@@ -100,10 +96,10 @@ public class PostsController {
                            @RequestParam(name = "title") String title,
                            @RequestParam(name = "image") MultipartFile image,
                            @RequestParam(name = "tags") String tags,
-                           @RequestParam(name = "text") String text) throws IOException {
+                           @RequestParam(name = "text") String text) {
 
         String fileName = imageService.uploadImage(image);
-        Post post = new Post(id, title, text, tags, fileName);
+        Post post = new Post(id, title, text, tags, fileName, null);
         postService.editPost(post);
         return "redirect:/posts/%d".formatted(id);
     }
