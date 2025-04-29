@@ -1,10 +1,12 @@
 package com.myblog.service;
 
+import com.myblog.model.Comment;
 import com.myblog.model.Post;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,6 +53,33 @@ public class PostService {
         if (post.getImagePath() != null) {
             existingPost.setImagePath(post.getImagePath());
         }
+    }
+
+    public void addComment(Long postId, String text) {
+        Post post = getPostById(postId);
+        List<Comment> commentList = post.getComments();
+        Long maxCommentId = commentList.stream().map(comment -> comment.getId()).max(Long::compareTo).orElse(0L);
+        Comment comment = new Comment(++maxCommentId, text);
+        commentList.add(comment);
+    }
+
+    public void editComment(Long postId, Long commentId, String text) {
+        Post post = getPostById(postId);
+        List<Comment> commentList = post.getComments();
+        Comment existingComment = commentList.stream().filter(comment -> comment.getId().equals(commentId)).toList().getFirst();
+        existingComment.setText(text);
+    }
+
+    public void deleteComment(Long postId, Long commentId) {
+        Post post = getPostById(postId);
+        List<Comment> commentList = post.getComments();
+        Comment existingComment = commentList.stream().filter(comment -> comment.getId().equals(commentId)).toList().getFirst();
+        commentList.remove(existingComment);
+    }
+
+    public void deletePost(Long postId) {
+        Post post = getPostById(postId);
+        postList.remove(post);
     }
 
 }

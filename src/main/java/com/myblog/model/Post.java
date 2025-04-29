@@ -1,5 +1,6 @@
 package com.myblog.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Post {
@@ -11,7 +12,7 @@ public class Post {
 
     private String imagePath;
     private Integer likesCount = 0;
-    private Integer comments;
+    private List<Comment> comments = new ArrayList<>();
 
     public Post(Long id, String title, String text, String tags, String imagePath) {
         this.id = id;
@@ -81,8 +82,8 @@ public class Post {
         this.likesCount = likesCount;
     }
 
-    public List getComments() {
-        return List.of("", "");
+    public List<Comment> getComments() {
+        return comments;
     }
 
     public List<String> getTextParts() {

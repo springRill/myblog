@@ -108,4 +108,32 @@ public class PostsController {
         return "redirect:/posts/%d".formatted(id);
     }
 
+    @PostMapping(value = "/posts/{id}/comments")
+    public String addComment(@PathVariable(name = "id") Long postId,
+                             @RequestParam(name = "text") String text) {
+        postService.addComment(postId, text);
+        return "redirect:/posts/%d".formatted(postId);
+    }
+
+    @PostMapping(value = "/posts/{id}/comments/{commentId}")
+    public String editComment(@PathVariable(name = "id") Long postId,
+                              @PathVariable(name = "commentId") Long commentId,
+                              @RequestParam(name = "text") String text) {
+        postService.editComment(postId, commentId, text);
+        return "redirect:/posts/%d".formatted(postId);
+    }
+
+    @PostMapping(value = "/posts/{id}/comments/{commentId}/delete")
+    public String deleteComment(@PathVariable(name = "id") Long postId,
+                                @PathVariable(name = "commentId") Long commentId) {
+        postService.deleteComment(postId, commentId);
+        return "redirect:/posts/%d".formatted(postId);
+    }
+
+    @PostMapping(value = "/posts/{id}/delete")
+    public String deletePost(@PathVariable(name = "id") Long postId) {
+        postService.deletePost(postId);
+        return "redirect:/posts";
+    }
+
 }
