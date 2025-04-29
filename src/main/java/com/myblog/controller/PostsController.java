@@ -41,7 +41,7 @@ public class PostsController {
                            @RequestParam(name = "pageSize", defaultValue = "10") @Nullable int pageSize,
                            @RequestParam(name = "pageNumber", defaultValue = "1") @Nullable int pageNumber
     ) {
-        List<Post> postList = postService.findAll();
+        List<Post> postList = postService.findAllPosts();
         List<Post> displayPosts = postList.stream().skip(pageSize * (pageNumber - 1)).limit(pageSize).toList();
 
         model.addAttribute("paging", new Paging(pageSize, pageNumber > 1, pageSize * pageNumber < postList.size(), pageNumber));
@@ -52,7 +52,7 @@ public class PostsController {
 
     @GetMapping(value = "/posts/{id}")
     public String getPost(Model model, @PathVariable(name = "id") Long id) {
-        Post post = postService.getById(id);
+        Post post = postService.getPostById(id);
 
         model.addAttribute("post", post);
 
@@ -68,18 +68,44 @@ public class PostsController {
     public String createPost(@RequestParam(name = "title") String title,
                              @RequestParam(name = "image") MultipartFile image,
                              @RequestParam(name = "tags") String tags,
-                             @RequestParam(name = "text") String text)  throws IOException {
+                             @RequestParam(name = "text") String text) throws IOException {
 
         String fileName = imageService.uploadImage(image);
         Post post = new Post(null, title, text, tags, fileName);
-        postService.addPost(post);
-        return "redirect:/posts";
+        Long id = postService.addPost(post).getId();
+        return "redirect:/posts/%d".formatted(id);
     }
 
     @GetMapping("/images/{id}")
     @ResponseBody
     public Resource getImage(@PathVariable(name = "id") Long id) {
         return imageService.getImage(id);
+    }
+
+    @PostMapping(value = "/posts/{id}/like")
+    public String likePost(@PathVariable(name = "id") Long id,
+                           @RequestParam(name = "like") boolean like) {
+        postService.likePost(id, like);
+        return "redirect:/posts/%d".formatted(id);
+    }
+
+    @GetMapping(value = "/posts/{id}/edit")
+    public String editPostPage(@PathVariable(name = "id") Long id, Model model) {
+        model.addAttribute("post", postService.getPostById(id));
+        return "add-post";
+    }
+
+    @PostMapping(value = "/posts/{id}")
+    public String editPost(@PathVariable(name = "id") Long id,
+                           @RequestParam(name = "title") String title,
+                           @RequestParam(name = "image") MultipartFile image,
+                           @RequestParam(name = "tags") String tags,
+                           @RequestParam(name = "text") String text) throws IOException {
+
+        String fileName = imageService.uploadImage(image);
+        Post post = new Post(id, title, text, tags, fileName);
+        postService.editPost(post);
+        return "redirect:/posts/%d".formatted(id);
     }
 
 }

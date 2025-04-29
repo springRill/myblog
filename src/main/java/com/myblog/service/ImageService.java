@@ -25,7 +25,7 @@ public class ImageService {
     }
 
     public Resource getImage(Long id){
-        Post post = postService.getById(id);
+        Post post = postService.getPostById(id);
         String filename = post.getImagePath();
         return resourceLoader.getResource("file:images/" + filename);
     }
@@ -36,8 +36,8 @@ public class ImageService {
         }
 
         Resource uploadResource = resourceLoader.getResource("file:images/");
-//        String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
-        String filename = image.getOriginalFilename();
+        String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+//        String filename = image.getOriginalFilename();
         try {
             File uploadDir = uploadResource.getFile();
             if (!uploadDir.exists()) {

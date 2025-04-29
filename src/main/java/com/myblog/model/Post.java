@@ -10,7 +10,7 @@ public class Post {
     private String tags;
 
     private String imagePath;
-    private Integer likesCount;
+    private Integer likesCount = 0;
     private Integer comments;
 
     public Post(Long id, String title, String text, String tags, String imagePath) {
@@ -53,6 +53,10 @@ public class Post {
         this.tags = tags;
     }
 
+    public String getTagsAsText() {
+        return tags;
+    }
+
     public String getImagePath() {
         return imagePath;
     }
@@ -69,8 +73,12 @@ public class Post {
 
     }
 
-    public int getLikesCount() {
-        return 10;
+    public Integer getLikesCount() {
+        return likesCount;
+    }
+
+    public void setLikesCount(Integer likesCount) {
+        this.likesCount = likesCount;
     }
 
     public List getComments() {
@@ -78,7 +86,7 @@ public class Post {
     }
 
     public List<String> getTextParts() {
-        List<String> splitedPost = List.of(text.split("\n"));
+        List<String> splitedPost = List.of(text.split("\r\n"));
         return splitedPost;
     }
 }
