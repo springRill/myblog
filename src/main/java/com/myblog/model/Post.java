@@ -1,6 +1,5 @@
 package com.myblog.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Post {
@@ -9,14 +8,17 @@ public class Post {
     private String title;
     private String text;
     private String tags;
-    private String image;
 
-    public Post(Long id, String title, String text, String tags, String image) {
+    private String imagePath;
+    private Integer likesCount;
+    private Integer comments;
+
+    public Post(Long id, String title, String text, String tags, String imagePath) {
         this.id = id;
         this.title = title;
         this.text = text;
         this.tags = tags;
-        this.image = image;
+        this.imagePath = imagePath;
     }
 
     public Long getId() {
@@ -43,10 +45,6 @@ public class Post {
         this.text = text;
     }
 
-    public String getTextPreview() {
-        return text.substring(0,4);
-    }
-
     public String getTags() {
         return tags;
     }
@@ -55,25 +53,32 @@ public class Post {
         this.tags = tags;
     }
 
-    public String getImage() {
-        return image;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
+    public String getTextPreview() {
+        if(text.length()<=3){
+            return text;
+        }
+        return text.substring(0, 3);
 
-    public int getLikesCount(){
+    }
+
+    public int getLikesCount() {
         return 10;
     }
 
-    public List getComments(){
+    public List getComments() {
         return List.of("", "");
     }
 
-    public List<String> getTextParts(){
-        List<String> splitedPost = List.of(text.split("/n"));
+    public List<String> getTextParts() {
+        List<String> splitedPost = List.of(text.split("\n"));
         return splitedPost;
     }
 }

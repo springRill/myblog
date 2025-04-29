@@ -2,21 +2,30 @@ package com.myblog.controller;
 
 import com.myblog.model.Paging;
 import com.myblog.model.Post;
+import com.myblog.service.ImageService;
 import com.myblog.service.PostService;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
-//@RequestMapping("/posts")
 public class PostsController {
 
-    PostService postService;
+    private final ResourceLoader resourceLoader;
+    private final ImageService imageService;
+    private final PostService postService;
 
-    public PostsController(PostService postService) {
+    public PostsController(ResourceLoader resourceLoader, ImageService imageService, PostService postService) {
+        this.resourceLoader = resourceLoader;
+        this.imageService = imageService;
         this.postService = postService;
     }
 
@@ -48,6 +57,29 @@ public class PostsController {
         model.addAttribute("post", post);
 
         return "post";
+    }
+
+    @GetMapping(value = "/posts/add")
+    public String addPostPage() {
+        return "add-post";
+    }
+
+    @PostMapping(value = "/posts", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public String createPost(@RequestParam(name = "title") String title,
+                             @RequestParam(name = "image") MultipartFile image,
+                             @RequestParam(name = "tags") String tags,
+                             @RequestParam(name = "text") String text)  throws IOException {
+
+        String fileName = imageService.uploadImage(image);
+        Post post = new Post(null, title, text, tags, fileName);
+        postService.addPost(post);
+        return "redirect:/posts";
+    }
+
+    @GetMapping("/images/{id}")
+    @ResponseBody
+    public Resource getImage(@PathVariable(name = "id") Long id) {
+        return imageService.getImage(id);
     }
 
 }

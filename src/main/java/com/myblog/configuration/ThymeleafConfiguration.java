@@ -36,4 +36,5 @@ public class ThymeleafConfiguration {
         return resolver;
     }
 
+
 }
