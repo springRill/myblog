@@ -37,7 +37,7 @@ public class PostsController {
                            @RequestParam(name = "pageSize", defaultValue = "10") @Nullable int pageSize,
                            @RequestParam(name = "pageNumber", defaultValue = "1") @Nullable int pageNumber
     ) {
-        List<Post> postList = postService.findAllPosts();
+        List<Post> postList = postService.findPosts(search);
         List<Post> displayPosts = postList.stream().skip(pageSize * (pageNumber - 1)).limit(pageSize).toList();
 
         model.addAttribute("paging", new Paging(pageSize, pageNumber > 1, pageSize * pageNumber < postList.size(), pageNumber));

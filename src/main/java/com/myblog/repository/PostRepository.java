@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface PostRepository {
 
-    List<Post> findAllPosts();
+    List<Post> findPosts(String search);
 
     Post getPostById(Long id);
 

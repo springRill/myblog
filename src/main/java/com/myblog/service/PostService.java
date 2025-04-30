@@ -15,8 +15,11 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public List<Post> findAllPosts() {
-        return this.postRepository.findAllPosts();
+    public List<Post> findPosts(String search) {
+        if (search == null) {
+            search = "";
+        }
+        return this.postRepository.findPosts(search);
     }
 
     public Post getPostById(Long id) {
@@ -24,6 +27,7 @@ public class PostService {
     }
 
     public Long addPost(Post post) {
+        post.setTags(post.getTags().trim().replaceAll("\\s{2,}", " "));
         return this.postRepository.addPost(post);
     }
 
@@ -32,6 +36,7 @@ public class PostService {
     }
 
     public void editPost(Post post) {
+        post.setTags(post.getTagsAsText().trim().replaceAll("\\s{2,}", " "));
         this.postRepository.editPost(post);
     }
 

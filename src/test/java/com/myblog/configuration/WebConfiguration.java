@@ -1,4 +1,4 @@
-package com.myblog;
+package com.myblog.configuration;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +8,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = {"com.myblog"})
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:test-application.properties")
 public class WebConfiguration {
 }

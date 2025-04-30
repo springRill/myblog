@@ -11,7 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 
-@Primary
+//@Primary
 @Repository
 public class JdbcPostRepository implements PostRepository {
 
@@ -22,9 +22,9 @@ public class JdbcPostRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> findAllPosts() {
+    public List<Post> findPosts(String search) {
         return jdbcTemplate.query(
-                "select id, title, text, tags, image_path, likes_count from posts",
+                "select id, title, text, tags, image_path, likes_count from posts where tags LIKE ?", new Object[]{"%" + search + "%"},
                 (rs, rowNum) ->  new Post(
                         rs.getLong("id"),
                         rs.getString("title"),
@@ -89,7 +89,7 @@ public class JdbcPostRepository implements PostRepository {
     @Override
     public void editPost(Post post) {
         jdbcTemplate.update("update posts set title = ?, text = ?, tags = ?, image_path = ? where id = ?",
-                post.getTitle(), post.getText(), post.getTags(), post.getImagePath(), post.getId());
+                post.getTitle(), post.getText(), post.getTagsAsText(), post.getImagePath(), post.getId());
     }
 
     @Override

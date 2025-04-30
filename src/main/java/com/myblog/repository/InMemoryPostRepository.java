@@ -2,6 +2,7 @@ package com.myblog.repository;
 
 import com.myblog.model.Comment;
 import com.myblog.model.Post;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Primary
 @Repository
 public class InMemoryPostRepository implements PostRepository {
 
@@ -17,13 +19,18 @@ public class InMemoryPostRepository implements PostRepository {
 
     public InMemoryPostRepository() {
         postList = Stream.iterate(1L, i -> i + 1).limit(3).
-                map(i -> new Post(postSequence++, "title_" + i, "asdafsd", null, "empty_image.png", 0)).
+                map(i -> new Post(postSequence++, "title_" + i, "asdafsd", "", "empty_image.png", 0)).
                 collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
-    public List<Post> findAllPosts() {
-        return postList;
+    public List<Post> findPosts(String search) {
+        return postList.stream().filter(post -> {
+            if (post.getTagsAsText().contains(search)) {
+                return true;
+            }
+            return false;
+        }).toList();
     }
 
     @Override
@@ -53,7 +60,7 @@ public class InMemoryPostRepository implements PostRepository {
         Post existingPost = getPostById(post.getId());
         existingPost.setTitle(post.getTitle());
         existingPost.setText(post.getText());
-        existingPost.setTags(post.getTags());
+        existingPost.setTags(post.getTagsAsText());
         if (post.getImagePath() != null) {
             existingPost.setImagePath(post.getImagePath());
         }

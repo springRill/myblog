@@ -1,6 +1,6 @@
 package com.myblog.configuration;
 
-import org.postgresql.Driver;
+import org.h2.Driver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +43,7 @@ public class DataSourceConfiguration {
         DataSource dataSource = event.getApplicationContext().getBean(DataSource.class);
 
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(new ClassPathResource("schema.sql")); // Файл должен находится в ресурсах
+        populator.addScript(new ClassPathResource("test-schema.sql")); // Файл должен находится в ресурсах
         populator.execute(dataSource);
         System.out.println();
     }

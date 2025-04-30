@@ -48,7 +48,10 @@ public class Post {
     }
 
     public String getTags() {
-        return tags;
+        if (tags == null) {
+            return tags;
+        }
+        return tags.trim().replaceAll(" ", " #");
     }
 
     public void setTags(String tags) {
@@ -68,10 +71,10 @@ public class Post {
     }
 
     public String getTextPreview() {
-        if(text.length()<=3){
+        if (text.length() <= 100) {
             return text;
         }
-        return text.substring(0, 3);
+        return text.substring(0, 100) + " ...";
 
     }
 
