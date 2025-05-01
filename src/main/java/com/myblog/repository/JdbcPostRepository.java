@@ -1,8 +1,7 @@
 package com.myblog.repository;
 
-import com.myblog.model.Comment;
-import com.myblog.model.Post;
-import org.springframework.context.annotation.Primary;
+import com.myblog.domain.Comment;
+import com.myblog.domain.Post;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -11,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 
-//@Primary
 @Repository
 public class JdbcPostRepository implements PostRepository {
 
@@ -24,7 +22,7 @@ public class JdbcPostRepository implements PostRepository {
     @Override
     public List<Post> findPosts(String search) {
         return jdbcTemplate.query(
-                "select id, title, text, tags, image_path, likes_count from posts where tags LIKE ?", new Object[]{"%" + search + "%"},
+                "select id, title, text, tags, image_path, likes_count from posts where tags LIKE ? order by id", new Object[]{"%" + search + "%"},
                 (rs, rowNum) ->  new Post(
                         rs.getLong("id"),
                         rs.getString("title"),
@@ -47,16 +45,19 @@ public class JdbcPostRepository implements PostRepository {
                         rs.getString("image_path"),
                         rs.getInt("likes_count")
                 )).getFirst();
+        return post;
+    }
 
+    public List<Comment> getCommentsByPostId(Long postId){
         List<Comment> commentList = jdbcTemplate.query(
-                "select id, text from comments where post_id = " + postId,
+                "select id, post_id, text from comments where post_id = " + postId,
                 (rs, rowNum) ->  new Comment(
                         rs.getLong("id"),
+                        rs.getLong("post_id"),
                         rs.getString("text")
                 ));
 
-        post.setComments(commentList);
-        return post;
+        return commentList;
     }
 
     @Override
@@ -89,29 +90,33 @@ public class JdbcPostRepository implements PostRepository {
     @Override
     public void editPost(Post post) {
         jdbcTemplate.update("update posts set title = ?, text = ?, tags = ?, image_path = ? where id = ?",
-                post.getTitle(), post.getText(), post.getTagsAsText(), post.getImagePath(), post.getId());
+                post.getTitle(), post.getText(), post.getTags(), post.getImagePath(), post.getId());
     }
 
     @Override
-    public void addComment(Long postId, String text) {
+    public void addComment(Comment comment) {
         jdbcTemplate.update("insert into comments(post_id, text) values(?, ?)",
-                postId, text);
+                comment.postId(), comment.text());
     }
 
     @Override
-    public void editComment(Long postId, Long commentId, String text) {
+    public void editComment(Comment comment) {
         jdbcTemplate.update("update comments set text = ? where id = ?",
-                text, commentId);
+                comment.text(), comment.id());
     }
 
     @Override
-    public void deleteComment(Long postId, Long commentId) {
+    public void deleteComment(Long commentId) {
         jdbcTemplate.update("delete from comments where id = ?", commentId);
     }
 
     @Override
-    public void deletePost(Long postId) {
+    public void deleteCommentsByPostId(Long postId) {
         jdbcTemplate.update("delete from comments where post_id = ?", postId);
+    }
+
+    @Override
+    public void deletePost(Long postId) {
         jdbcTemplate.update("delete from posts where id = ?", postId);
     }
 }

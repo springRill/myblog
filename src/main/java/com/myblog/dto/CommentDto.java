@@ -1,10 +1,10 @@
-package com.myblog.model;
+package com.myblog.dto;
 
-public class Comment {
-    Long id;
-    String text;
+public class CommentDto {
+    private Long id;
+    private String text;
 
-    public Comment(Long id, String text) {
+    public CommentDto(Long id, String text) {
         this.id = id;
         this.text = text;
     }

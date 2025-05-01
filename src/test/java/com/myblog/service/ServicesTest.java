@@ -1,0 +1,198 @@
+package com.myblog.service;
+
+import com.myblog.configuration.TestDataSourceConfiguration;
+import com.myblog.configuration.TestServiceConfiguration;
+import com.myblog.dto.CommentDto;
+import com.myblog.dto.PostDto;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringJUnitConfig(classes = {TestServiceConfiguration.class, TestDataSourceConfiguration.class})
+@TestPropertySource(locations = "classpath:test-application.properties")
+class ServicesTest {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private ImageService imageService;
+
+    @BeforeEach
+    void setUp() {
+        // Очистка базы данных
+        jdbcTemplate.execute("DELETE FROM comments");
+        jdbcTemplate.execute("DELETE FROM posts");
+
+        // Добавление тестовых данных
+        jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_1', 'text_1', 'tag1 tag2 tags3', 'image_path_1', 1)");
+        jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_2', 'text_2', 'tag2 tag3 tags4', 'image_path_2', 2)");
+    }
+
+    @Test
+    void findPosts() {
+        assertEquals(0, postService.findPosts("tag1_no").size());
+        assertEquals(2, postService.findPosts("").size());
+        assertEquals(1, postService.findPosts("tag1").size());
+        assertEquals(2, postService.findPosts("tag2").size());
+    }
+
+    @Test
+    void getPostById() {
+        Long postId = postService.findPosts("").getFirst().getId();
+        PostDto postDto = postService.getPostById(postId);
+        assertNotNull(postDto);
+    }
+
+    @Test
+    void addPost() {
+        assertEquals(2, postService.findPosts("").size());
+        PostDto postDto = new PostDto();
+        postDto.setTitle("title_3");
+        postDto.setText("text_3");
+        postDto.setTagsAsText("tag3 tag4 tags5");
+        postDto.setImagePath("image_path_3");
+        postDto.setLikesCount(3);
+
+        postService.addPost(postDto);
+        assertEquals(3, postService.findPosts("").size());
+    }
+
+    @Test
+    void likePost() {
+        Long postId = postService.findPosts("").getFirst().getId();
+        PostDto postDto = postService.getPostById(postId);
+        Integer likesCount = postDto.getLikesCount();
+
+        postService.likePost(postId, true);
+        postDto = postService.getPostById(postId);
+        assertEquals(likesCount + 1, postDto.getLikesCount());
+
+        postService.likePost(postId, false);
+        postDto = postService.getPostById(postId);
+        assertEquals(likesCount, postDto.getLikesCount());
+    }
+
+    @Test
+    void editPost() {
+        Long postId = postService.findPosts("").getFirst().getId();
+        PostDto postDto = postService.getPostById(postId);
+        postDto.setTitle("changedTitle");
+        postDto.setText("changedText");
+        postDto.setTagsAsText("changedTag");
+        postDto.setImagePath("changedImagePath");
+        postService.editPost(postDto);
+
+        PostDto changedPostDto = postService.getPostById(postId);
+        assertEquals("changedTitle", changedPostDto.getTitle());
+        assertEquals("changedText", changedPostDto.getText());
+        assertEquals(List.of("changedTag"), changedPostDto.getTags());
+        assertEquals("changedTag", changedPostDto.getTagsAsText());
+        assertEquals("changedImagePath", changedPostDto.getImagePath());
+    }
+
+    @Test
+    void addComment() {
+        PostDto postDto = postService.findPosts("").getFirst();
+        assertEquals(0, postDto.getComments().size());
+
+        CommentDto commentDto = new CommentDto(null, "postComment");
+        postService.addComment(postDto.getId(), commentDto);
+        PostDto postWithCommentDto = postService.getPostById(postDto.getId());
+        assertEquals(1, postWithCommentDto.getComments().size());
+        assertEquals("postComment", postWithCommentDto.getComments().getFirst().getText());
+    }
+
+    @Test
+    void editComment() {
+        PostDto postDto = postService.findPosts("").getFirst();
+        assertEquals(0, postDto.getComments().size());
+
+        CommentDto commentDto = new CommentDto(null, "postComment");
+        postService.addComment(postDto.getId(), commentDto);
+        PostDto postWithCommentDto = postService.getPostById(postDto.getId());
+        assertEquals(1, postWithCommentDto.getComments().size());
+        assertEquals("postComment", postWithCommentDto.getComments().getFirst().getText());
+
+        CommentDto changedCommentDto = new CommentDto(postWithCommentDto.getComments().getFirst().getId(), "changedPostComment");
+        postService.editComment(postDto.getId(), changedCommentDto);
+        PostDto postWithChangedCommentDto = postService.getPostById(postDto.getId());
+        assertEquals(1, postWithChangedCommentDto.getComments().size());
+        assertEquals("changedPostComment", postWithChangedCommentDto.getComments().getFirst().getText());
+    }
+
+    @Test
+    void deleteComment() {
+        PostDto postDto = postService.findPosts("").getFirst();
+        assertEquals(0, postDto.getComments().size());
+
+        CommentDto commentDto = new CommentDto(null, "postComment");
+        postService.addComment(postDto.getId(), commentDto);
+        PostDto postWithCommentDto = postService.getPostById(postDto.getId());
+        assertEquals(1, postWithCommentDto.getComments().size());
+        assertEquals("postComment", postWithCommentDto.getComments().getFirst().getText());
+
+        postService.deleteComment(postWithCommentDto.getComments().getFirst().getId());
+        PostDto postWithNoCommentDto = postService.getPostById(postDto.getId());
+        assertEquals(0, postWithNoCommentDto.getComments().size());
+    }
+
+    @Test
+    void deletePost() {
+        assertEquals(2, postService.findPosts("").size());
+
+        postService.deletePost(postService.findPosts("").getFirst().getId());
+        assertEquals(1, postService.findPosts("").size());
+    }
+
+    @Test
+    void getImage() {
+        assertEquals(2, postService.findPosts("").size());
+        PostDto postDto = new PostDto();
+        postDto.setTitle("title_3");
+        postDto.setText("text_3");
+        postDto.setTagsAsText("tag3 tag4 tags5");
+        postDto.setLikesCount(3);
+        Long postId = postService.addPost(postDto);
+        Resource resource = imageService.getImage(postId);
+        assertEquals("images/no_image.png", ((ClassPathResource) resource).getPath());
+    }
+
+    @Test
+    void uploadImage() throws IOException {
+        String originalFileName = "test.png";
+        byte[] content = "image".getBytes();
+        MultipartFile multipartFile = new MockMultipartFile("image", originalFileName, MediaType.IMAGE_PNG_VALUE, content);
+
+        String fileName = imageService.uploadImage(multipartFile);
+        assertNotNull(fileName);
+        Path path = Paths.get("images", fileName);
+        assertTrue(Files.exists(path));
+
+        Files.deleteIfExists(path);
+        Path uploadDir = Paths.get("images");
+        if (Files.exists(uploadDir) && Files.list(uploadDir).findAny().isEmpty()) {
+            Files.delete(uploadDir);
+        }
+    }
+
+}

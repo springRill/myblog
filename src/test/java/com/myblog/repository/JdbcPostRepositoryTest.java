@@ -1,12 +1,11 @@
 package com.myblog.repository;
 
-import com.myblog.configuration.DataSourceConfiguration;
-import com.myblog.model.Post;
-import org.junit.jupiter.api.AfterEach;
+import com.myblog.configuration.TestDataSourceConfiguration;
+import com.myblog.domain.Comment;
+import com.myblog.domain.Post;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -14,7 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringJUnitConfig(classes = {DataSourceConfiguration.class, JdbcPostRepository.class})
+@SpringJUnitConfig(classes = {TestDataSourceConfiguration.class, JdbcPostRepository.class})
 @TestPropertySource(locations = "classpath:test-application.properties")
 class JdbcPostRepositoryTest {
 
@@ -31,20 +30,16 @@ class JdbcPostRepositoryTest {
         jdbcTemplate.execute("DELETE FROM posts");
 
         // Добавление тестовых данных
-        jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_1', 'text_1', 'tags_1', 'image_path_1', 1)");
-        jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_2', 'text_2', 'tags_2', 'image_path_2', 2)");
-    }
-
-    @AfterEach
-    void tearDown() {
+        jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_1', 'text_1', 'tag1 tag2 tags3', 'image_path_1', 1)");
+        jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_2', 'text_2', 'tag2 tag3 tags4', 'image_path_2', 2)");
     }
 
     @Test
-    void findAllPosts() {
+    void findPosts() {
+        assertEquals(0, postRepository.findPosts("tag1_no").size());
         assertEquals(2, postRepository.findPosts("").size());
-        jdbcTemplate.execute("INSERT INTO posts (id, title, text, tags, image_path, likes_count) VALUES (3, 'title_3', 'text_3', 'tags_3', 'image_path_3', 3)");
-        assertEquals(3, postRepository.findPosts("").size());
-        assertEquals(1, postRepository.findPosts("tags_2").size());
+        assertEquals(1, postRepository.findPosts("tag1").size());
+        assertEquals(2, postRepository.findPosts("tag2").size());
     }
 
     @Test
@@ -52,6 +47,14 @@ class JdbcPostRepositoryTest {
         Long postId = postRepository.findPosts("").getFirst().getId();
         Post post = postRepository.getPostById(postId);
         assertNotNull(post);
+    }
+
+    @Test
+    void getCommentsByPostId() {
+        Long postId = postRepository.findPosts("").getFirst().getId();
+        assertEquals(0, postRepository.getCommentsByPostId(postId).size());
+        jdbcTemplate.execute("INSERT INTO comments (post_id, text) VALUES (" + postId + ", 'text_comment')");
+        assertEquals(1, postRepository.getCommentsByPostId(postId).size());
     }
 
     @Test
@@ -87,52 +90,60 @@ class JdbcPostRepositoryTest {
         post.setImagePath("changedImagePath");
         postRepository.editPost(post);
 
-        post = postRepository.getPostById(postId);
-        assertEquals("changedTitle", post.getTitle());
-        assertEquals("changedText", post.getText());
-        assertEquals("changedTags", post.getTags());
-        assertEquals("changedImagePath", post.getImagePath());
+        Post changedPost = postRepository.getPostById(postId);
+        assertEquals("changedTitle", changedPost.getTitle());
+        assertEquals("changedText", changedPost.getText());
+        assertEquals("changedTags", changedPost.getTags());
+        assertEquals("changedImagePath", changedPost.getImagePath());
     }
 
     @Test
     void addComment() {
         Long postId = postRepository.findPosts("").getFirst().getId();
-        Post post = postRepository.getPostById(postId);
-        Integer commentsCount = post.getComments().size();
-        postRepository.addComment(postId, "postComment");
-        post = postRepository.getPostById(postId);
-        assertEquals(commentsCount+1, post.getComments().size());
+
+        assertEquals(0, postRepository.getCommentsByPostId(postId).size());
+
+        Comment comment = new Comment(null, postId, "postComment");
+        postRepository.addComment(comment);
+        assertEquals(1, postRepository.getCommentsByPostId(postId).size());
     }
 
     @Test
     void editComment() {
         Long postId = postRepository.findPosts("").getFirst().getId();
-        Post post = postRepository.getPostById(postId);
 
-        assertEquals(0, post.getComments().size());
+        Comment comment = new Comment(null, postId, "postComment");
+        postRepository.addComment(comment);
+        assertEquals("postComment", postRepository.getCommentsByPostId(postId).getFirst().text());
 
-        postRepository.addComment(postId, "postComment");
-        post = postRepository.getPostById(postId);
-        assertEquals(1, post.getComments().size());
-        assertEquals("postComment", post.getComments().getFirst().getText());
-
-        postRepository.editComment(postId, post.getComments().getFirst().getId(), "changedPostComment");
-        post = postRepository.getPostById(postId);
-        assertEquals(1, post.getComments().size());
-        assertEquals("changedPostComment", post.getComments().getFirst().getText());
+        Long commentId = postRepository.getCommentsByPostId(postId).getFirst().id();
+        Comment changedPostComment = new Comment(commentId, null, "changedPostComment") ;
+        postRepository.editComment(changedPostComment);
+        assertEquals("changedPostComment", postRepository.getCommentsByPostId(postId).getFirst().text());
     }
 
     @Test
     void deleteComment() {
         Long postId = postRepository.findPosts("").getFirst().getId();
+        Comment comment = new Comment(null, postId, "postComment");
+        postRepository.addComment(comment);
+        assertEquals(1, postRepository.getCommentsByPostId(postId).size());
 
-        postRepository.addComment(postId, "postComment");
-        Post post = postRepository.getPostById(postId);
-        assertEquals(1, post.getComments().size());
+        postRepository.deleteComment(postRepository.getCommentsByPostId(postId).getFirst().id());
+        assertEquals(0, postRepository.getCommentsByPostId(postId).size());
+    }
 
-        postRepository.deleteComment(postId, post.getComments().getFirst().getId());
-        post = postRepository.getPostById(postId);
-        assertEquals(0, post.getComments().size());
+    @Test
+    void deleteCommentsByPostId() {
+        Long postId = postRepository.findPosts("").getFirst().getId();
+        Comment comment_1 = new Comment(null, postId, "postComment_1");
+        postRepository.addComment(comment_1);
+        Comment comment_2 = new Comment(null, postId, "postComment_2");
+        postRepository.addComment(comment_2);
+        assertEquals(2, postRepository.getCommentsByPostId(postId).size());
+
+        postRepository.deleteCommentsByPostId(postId);
+        assertEquals(0, postRepository.getCommentsByPostId(postId).size());
     }
 
     @Test

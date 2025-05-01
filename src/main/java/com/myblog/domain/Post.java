@@ -1,7 +1,4 @@
-package com.myblog.model;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.myblog.domain;
 
 public class Post {
 
@@ -9,10 +6,8 @@ public class Post {
     private String title;
     private String text;
     private String tags;
-
     private String imagePath;
-    private Integer likesCount = 0;
-    private List<Comment> comments = new ArrayList<>();
+    private Integer likesCount;
 
     public Post(Long id, String title, String text, String tags, String imagePath, Integer likesCount) {
         this.id = id;
@@ -48,18 +43,11 @@ public class Post {
     }
 
     public String getTags() {
-        if (tags == null) {
-            return tags;
-        }
-        return tags.trim().replaceAll(" ", " #");
+        return tags;
     }
 
     public void setTags(String tags) {
         this.tags = tags;
-    }
-
-    public String getTagsAsText() {
-        return tags;
     }
 
     public String getImagePath() {
@@ -70,31 +58,11 @@ public class Post {
         this.imagePath = imagePath;
     }
 
-    public String getTextPreview() {
-        if (text.length() <= 100) {
-            return text;
-        }
-        return text.substring(0, 100) + " ...";
-
-    }
-
     public Integer getLikesCount() {
         return likesCount;
     }
 
     public void setLikesCount(Integer likesCount) {
         this.likesCount = likesCount;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public List<String> getTextParts() {
-        return List.of(text.split("\r\n"));
     }
 }

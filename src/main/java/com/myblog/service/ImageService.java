@@ -1,6 +1,6 @@
 package com.myblog.service;
 
-import com.myblog.model.Post;
+import com.myblog.dto.PostDto;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -25,9 +25,12 @@ public class ImageService {
     }
 
     public Resource getImage(Long id){
-        Post post = postService.getPostById(id);
+        PostDto post = postService.getPostById(id);
         String filename = post.getImagePath();
-        return resourceLoader.getResource("file:images/" + filename);
+        if(filename!=null) {
+            return resourceLoader.getResource("file:images/" + filename);
+        }
+        return resourceLoader.getResource("classpath:images/no_image.png");
     }
 
     public String uploadImage(MultipartFile image){
@@ -37,7 +40,6 @@ public class ImageService {
 
         Resource uploadResource = resourceLoader.getResource("file:images/");
         String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
-//        String filename = image.getOriginalFilename();
         try {
             File uploadDir = uploadResource.getFile();
             if (!uploadDir.exists()) {

@@ -1,14 +1,18 @@
 package com.myblog.repository;
 
-import com.myblog.model.Post;
+import com.myblog.domain.Comment;
+import com.myblog.domain.Post;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface PostRepository {
 
     List<Post> findPosts(String search);
 
-    Post getPostById(Long id);
+    Post getPostById(Long postId);
+
+    List<Comment> getCommentsByPostId(Long postId);
 
     Long addPost(Post post);
 
@@ -16,12 +20,13 @@ public interface PostRepository {
 
     void editPost(Post post);
 
-    void addComment(Long postId, String text);
+    void addComment(Comment comment);
 
-    void editComment(Long postId, Long commentId, String text);
+    void editComment(Comment comment);
 
-    void deleteComment(Long postId, Long commentId);
+    void deleteComment(Long commentId);
+
+    void deleteCommentsByPostId(Long postId);
 
     void deletePost(Long postId);
-
 }

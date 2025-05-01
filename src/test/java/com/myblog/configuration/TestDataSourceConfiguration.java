@@ -14,7 +14,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import javax.sql.DataSource;
 
 @Configuration
-public class DataSourceConfiguration {
+public class TestDataSourceConfiguration {
 
     // Настройка DataSource — компонент, отвечающий за соединение с базой данных
     @Bean
@@ -45,7 +45,6 @@ public class DataSourceConfiguration {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("test-schema.sql")); // Файл должен находится в ресурсах
         populator.execute(dataSource);
-        System.out.println();
     }
 
 }

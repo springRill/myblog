@@ -1,12 +1,12 @@
 package com.myblog.controller;
 
-import com.myblog.model.Paging;
-import com.myblog.model.Post;
+import com.myblog.dto.CommentDto;
+import com.myblog.dto.PagingDto;
+import com.myblog.dto.PostDto;
 import com.myblog.service.ImageService;
 import com.myblog.service.PostService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,25 +33,22 @@ public class PostsController {
 
     @GetMapping("/posts")
     public String getPosts(Model model,
-                           @RequestParam(name = "search") @Nullable String search,
-                           @RequestParam(name = "pageSize", defaultValue = "10") @Nullable int pageSize,
-                           @RequestParam(name = "pageNumber", defaultValue = "1") @Nullable int pageNumber
+                           @RequestParam(name = "search", defaultValue = "") String search,
+                           @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
+                           @RequestParam(name = "pageNumber", defaultValue = "1") int pageNumber
     ) {
-        List<Post> postList = postService.findPosts(search);
-        List<Post> displayPosts = postList.stream().skip(pageSize * (pageNumber - 1)).limit(pageSize).toList();
+        List<PostDto> postList = postService.findPosts(search);
+        List<PostDto> displayPosts = postList.stream().skip(pageSize * (pageNumber - 1)).limit(pageSize).toList();
 
-        model.addAttribute("paging", new Paging(pageSize, pageNumber > 1, pageSize * pageNumber < postList.size(), pageNumber));
+        model.addAttribute("paging", new PagingDto(pageSize, pageNumber > 1, pageSize * pageNumber < postList.size(), pageNumber));
         model.addAttribute("posts", displayPosts);
-
         return "posts";
     }
 
     @GetMapping(value = "/posts/{id}")
     public String getPost(Model model, @PathVariable(name = "id") Long id) {
-        Post post = postService.getPostById(id);
-
+        PostDto post = postService.getPostById(id);
         model.addAttribute("post", post);
-
         return "post";
     }
 
@@ -67,8 +64,15 @@ public class PostsController {
                              @RequestParam(name = "text") String text) {
 
         String fileName = imageService.uploadImage(image);
-        Post post = new Post(null, title, text, tags, fileName, 0);
-        Long id = postService.addPost(post);
+
+        PostDto postDto = new PostDto();
+        postDto.setTitle(title);
+        postDto.setText(text);
+        postDto.setTagsAsText(tags);
+        postDto.setImagePath(fileName);
+        postDto.setLikesCount(0);
+
+        Long id = postService.addPost(postDto);
         return "redirect:/posts/%d".formatted(id);
     }
 
@@ -99,15 +103,23 @@ public class PostsController {
                            @RequestParam(name = "text") String text) {
 
         String fileName = imageService.uploadImage(image);
-        Post post = new Post(id, title, text, tags, fileName, null);
-        postService.editPost(post);
+
+        PostDto postDto = new PostDto();
+        postDto.setId(id);
+        postDto.setTitle(title);
+        postDto.setText(text);
+        postDto.setTagsAsText(tags);
+        postDto.setImagePath(fileName);
+
+        postService.editPost(postDto);
         return "redirect:/posts/%d".formatted(id);
     }
 
     @PostMapping(value = "/posts/{id}/comments")
     public String addComment(@PathVariable(name = "id") Long postId,
                              @RequestParam(name = "text") String text) {
-        postService.addComment(postId, text);
+        CommentDto commentDto = new CommentDto(null, text);
+        postService.addComment(postId, commentDto);
         return "redirect:/posts/%d".formatted(postId);
     }
 
@@ -115,14 +127,15 @@ public class PostsController {
     public String editComment(@PathVariable(name = "id") Long postId,
                               @PathVariable(name = "commentId") Long commentId,
                               @RequestParam(name = "text") String text) {
-        postService.editComment(postId, commentId, text);
+        CommentDto commentDto = new CommentDto(commentId, text);
+        postService.editComment(postId, commentDto);
         return "redirect:/posts/%d".formatted(postId);
     }
 
     @PostMapping(value = "/posts/{id}/comments/{commentId}/delete")
     public String deleteComment(@PathVariable(name = "id") Long postId,
                                 @PathVariable(name = "commentId") Long commentId) {
-        postService.deleteComment(postId, commentId);
+        postService.deleteComment(commentId);
         return "redirect:/posts/%d".formatted(postId);
     }
 
