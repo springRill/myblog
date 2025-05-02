@@ -53,10 +53,10 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="627c8d36-51aa-4747-8b26-1c6e0b33eff3">
-      <console name="H2" type="STANDARD" schema="" session="Main"><![CDATA[select * from users]]></console>
+      <console name="H2" type="STANDARD" schema="" session="Main" />
     </connection>
     <connection id="4fbe481d-4331-49df-a038-a1e46c9db465">
-      <console name="Connection" type="STANDARD" schema="test_myblog" session="Main" />
+      <console name="pgdql" type="STANDARD" schema="test_myblog" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">

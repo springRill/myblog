@@ -18,8 +18,6 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//@SpringJUnitConfig(classes = {TestWebConfiguration.class, TestDataSourceConfiguration.class})
-//@TestPropertySource(locations = "classpath:test-application.properties")
 @SpringJUnitConfig(classes = {WebConfiguration.class})
 @TestPropertySource(locations = "classpath:test-application.properties")
 class ImageServiceTest {
