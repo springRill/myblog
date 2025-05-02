@@ -7,6 +7,7 @@ import com.myblog.service.ImageService;
 import com.myblog.service.PostService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -79,7 +80,8 @@ public class PostsController {
     @GetMapping("/images/{id}")
     @ResponseBody
     public Resource getImage(@PathVariable(name = "id") Long id) {
-        return imageService.getImage(id);
+        String imagePath = postService.getPostById(id).getImagePath();
+        return imageService.getImage(imagePath);
     }
 
     @PostMapping(value = "/posts/{id}/like")

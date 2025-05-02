@@ -1,15 +1,19 @@
 package com.myblog.service;
 
 import com.myblog.dto.PostDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
@@ -17,18 +21,23 @@ import java.util.UUID;
 public class ImageService {
 
     private final ResourceLoader resourceLoader;
-    private final PostService postService;
 
-    public ImageService(ResourceLoader resourceLoader, PostService postService) {
+    @Value("${image.path:imagesfolder}")
+    private String imagePath;
+
+    public ImageService(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
-        this.postService = postService;
     }
 
-    public Resource getImage(Long id){
-        PostDto post = postService.getPostById(id);
-        String filename = post.getImagePath();
+    public Resource getImage(String filename) {
         if(filename!=null) {
-            return resourceLoader.getResource("file:images/" + filename);
+            try {
+                Path filePath = Paths.get(imagePath).resolve(filename);
+                Resource resource = new UrlResource(filePath.toUri());
+                return resource;
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
         return resourceLoader.getResource("classpath:images/no_image.png");
     }
@@ -37,10 +46,10 @@ public class ImageService {
         if(image.getSize()==0){
             return null;
         }
-
-        Resource uploadResource = resourceLoader.getResource("file:images/");
         String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
         try {
+            Path filePath = Paths.get(imagePath);
+            Resource uploadResource = new UrlResource(filePath.toUri());
             File uploadDir = uploadResource.getFile();
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
@@ -51,5 +60,14 @@ public class ImageService {
             throw new RuntimeException(e);
         }
         return filename;
+    }
+
+    public void deleteImage(String filename){
+        try {
+            Path path = Paths.get(imagePath, filename); // путь к реальной папке
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

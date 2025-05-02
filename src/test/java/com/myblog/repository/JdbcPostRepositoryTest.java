@@ -1,6 +1,6 @@
 package com.myblog.repository;
 
-import com.myblog.configuration.TestDataSourceConfiguration;
+import com.myblog.configuration.DataSourceConfiguration;
 import com.myblog.domain.Comment;
 import com.myblog.domain.Post;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringJUnitConfig(classes = {TestDataSourceConfiguration.class, JdbcPostRepository.class})
+@SpringJUnitConfig(classes = {DataSourceConfiguration.class, JdbcPostRepository.class})
 @TestPropertySource(locations = "classpath:test-application.properties")
 class JdbcPostRepositoryTest {
 

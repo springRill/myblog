@@ -14,7 +14,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import javax.sql.DataSource;
 
 @Configuration
-public class TestDataSourceConfiguration {
+public class DataSourceConfiguration {
 
     // Настройка DataSource — компонент, отвечающий за соединение с базой данных
     @Bean

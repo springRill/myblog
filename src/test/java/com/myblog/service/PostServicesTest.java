@@ -1,41 +1,28 @@
 package com.myblog.service;
 
-import com.myblog.configuration.TestDataSourceConfiguration;
-import com.myblog.configuration.TestServiceConfiguration;
+import com.myblog.configuration.WebConfiguration;
 import com.myblog.dto.CommentDto;
 import com.myblog.dto.PostDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringJUnitConfig(classes = {TestServiceConfiguration.class, TestDataSourceConfiguration.class})
+@SpringJUnitConfig(classes = {WebConfiguration.class})
 @TestPropertySource(locations = "classpath:test-application.properties")
-class ServicesTest {
+class PostServicesTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private PostService postService;
-
-    @Autowired
-    private ImageService imageService;
 
     @BeforeEach
     void setUp() {
@@ -162,37 +149,6 @@ class ServicesTest {
 
         postService.deletePost(postService.findPosts("").getFirst().getId());
         assertEquals(1, postService.findPosts("").size());
-    }
-
-    @Test
-    void getImage() {
-        assertEquals(2, postService.findPosts("").size());
-        PostDto postDto = new PostDto();
-        postDto.setTitle("title_3");
-        postDto.setText("text_3");
-        postDto.setTagsAsText("tag3 tag4 tags5");
-        postDto.setLikesCount(3);
-        Long postId = postService.addPost(postDto);
-        Resource resource = imageService.getImage(postId);
-        assertEquals("images/no_image.png", ((ClassPathResource) resource).getPath());
-    }
-
-    @Test
-    void uploadImage() throws IOException {
-        String originalFileName = "test.png";
-        byte[] content = "image".getBytes();
-        MultipartFile multipartFile = new MockMultipartFile("image", originalFileName, MediaType.IMAGE_PNG_VALUE, content);
-
-        String fileName = imageService.uploadImage(multipartFile);
-        assertNotNull(fileName);
-        Path path = Paths.get("images", fileName);
-        assertTrue(Files.exists(path));
-
-        Files.deleteIfExists(path);
-        Path uploadDir = Paths.get("images");
-        if (Files.exists(uploadDir) && Files.list(uploadDir).findAny().isEmpty()) {
-            Files.delete(uploadDir);
-        }
     }
 
 }
