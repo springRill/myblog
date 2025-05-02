@@ -7,9 +7,13 @@
 для запуска проекта нужно прописать в application.properties
 image.path=(путь для хранения картинок в файловой системе).
 
-собрать проект и скопировать файл проекта "myblog.war" в tomcat
+собрать проект и скопировать файл проекта "myblog.war" в tomcat\webapps
 
 установить postgresql, и создать базу данных "test_myblog"
+
+запустить tomcat
+
+приложение будет доступро по адресу http://localhost:8080/myblog
 
 ## Запуск тестов
 для запуска тестов нужно прописать в test-application.properties
