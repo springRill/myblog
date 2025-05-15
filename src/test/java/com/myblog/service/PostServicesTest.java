@@ -1,21 +1,25 @@
 package com.myblog.service;
 
-import com.myblog.configuration.WebConfiguration;
 import com.myblog.dto.CommentDto;
 import com.myblog.dto.PostDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/*
 @SpringJUnitConfig(classes = {WebConfiguration.class})
 @TestPropertySource(locations = "classpath:test-application.properties")
+*/
+@SpringBootTest
+@ActiveProfiles("test")
 class PostServicesTest {
 
     @Autowired

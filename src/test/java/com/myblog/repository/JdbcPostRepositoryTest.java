@@ -1,20 +1,23 @@
 package com.myblog.repository;
 
-import com.myblog.configuration.DataSourceConfiguration;
 import com.myblog.domain.Comment;
 import com.myblog.domain.Post;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/*
 @SpringJUnitConfig(classes = {DataSourceConfiguration.class, JdbcPostRepository.class})
 @TestPropertySource(locations = "classpath:test-application.properties")
+*/
+@SpringBootTest
+@ActiveProfiles("test")
 class JdbcPostRepositoryTest {
 
     @Autowired
