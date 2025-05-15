@@ -117,12 +117,12 @@ class JdbcPostRepositoryTest {
 
         Comment comment = new Comment(null, postId, "postComment");
         postRepository.addComment(comment);
-        assertEquals("postComment", postRepository.getCommentsByPostId(postId).getFirst().text());
+        assertEquals("postComment", postRepository.getCommentsByPostId(postId).getFirst().getText());
 
-        Long commentId = postRepository.getCommentsByPostId(postId).getFirst().id();
+        Long commentId = postRepository.getCommentsByPostId(postId).getFirst().getId();
         Comment changedPostComment = new Comment(commentId, null, "changedPostComment") ;
         postRepository.editComment(changedPostComment);
-        assertEquals("changedPostComment", postRepository.getCommentsByPostId(postId).getFirst().text());
+        assertEquals("changedPostComment", postRepository.getCommentsByPostId(postId).getFirst().getText());
     }
 
     @Test
@@ -132,7 +132,7 @@ class JdbcPostRepositoryTest {
         postRepository.addComment(comment);
         assertEquals(1, postRepository.getCommentsByPostId(postId).size());
 
-        postRepository.deleteComment(postRepository.getCommentsByPostId(postId).getFirst().id());
+        postRepository.deleteComment(postRepository.getCommentsByPostId(postId).getFirst().getId());
         assertEquals(0, postRepository.getCommentsByPostId(postId).size());
     }
 

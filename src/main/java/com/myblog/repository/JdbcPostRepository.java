@@ -96,13 +96,13 @@ public class JdbcPostRepository implements PostRepository {
     @Override
     public void addComment(Comment comment) {
         jdbcTemplate.update("insert into comments(post_id, text) values(?, ?)",
-                comment.postId(), comment.text());
+                comment.getPostId(), comment.getText());
     }
 
     @Override
     public void editComment(Comment comment) {
         jdbcTemplate.update("update comments set text = ? where id = ?",
-                comment.text(), comment.id());
+                comment.getText(), comment.getId());
     }
 
     @Override

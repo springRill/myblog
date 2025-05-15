@@ -9,8 +9,8 @@ public class CommentMapper {
 
     public CommentDto toCommentDto(Comment comment){
         return new CommentDto(
-                comment.id(),
-                comment.text()
+                comment.getId(),
+                comment.getText()
         );
     }
 
