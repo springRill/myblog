@@ -4,7 +4,6 @@ import com.myblog.dto.CommentDto;
 import com.myblog.dto.PostDto;
 import com.myblog.service.ImageService;
 import com.myblog.service.PostService;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -31,9 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 class PostsControllerIntegrationTest {
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -284,25 +279,5 @@ class PostsControllerIntegrationTest {
                 .andExpect(redirectedUrl("/posts"));
 
         assertEquals(1,  postService.findPosts("").size());
-    }
-
-    @AfterAll
-    static void clearImages() {
-        System.out.println();
-
-//        postService.findPosts("");
-
-//        Path directory = Paths.get(imagePath);
-
-/*
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
-            for (Path file : stream) {
-                if (Files.isRegularFile(file)) {
-                    Files.delete(file);
-                }
-            }
-        }
-*/
-
     }
 }

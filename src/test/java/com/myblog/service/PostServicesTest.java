@@ -26,11 +26,9 @@ class PostServicesTest {
 
     @BeforeEach
     void setUp() {
-        // Очистка базы данных
         jdbcTemplate.execute("DELETE FROM comments");
         jdbcTemplate.execute("DELETE FROM posts");
 
-        // Добавление тестовых данных
         jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_1', 'text_1', 'tag1 tag2 tags3', 'image_path_1', 1)");
         jdbcTemplate.execute("INSERT INTO posts (title, text, tags, image_path, likes_count) VALUES ('title_2', 'text_2', 'tag2 tag3 tags4', 'image_path_2', 2)");
     }

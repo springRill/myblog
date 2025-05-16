@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,10 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class JdbcPostRepositoryTest {
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+class RepositoryTest {
 
     @Autowired
     private PostRepository postRepository;
@@ -27,9 +23,8 @@ class JdbcPostRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Очистка базы данных
-        jdbcTemplate.execute("DELETE FROM comments");
-        jdbcTemplate.execute("DELETE FROM posts");
+        commentRepository.deleteAll();
+        postRepository.deleteAll();
 
         postRepository.save(new Post(null, "title_1", "text_1", "tag1 tag2 tags3", "image_path_1", 1));
         postRepository.save(new Post(null, "title_2", "text_2", "tag2 tag3 tags4", "image_path_2", 2));
