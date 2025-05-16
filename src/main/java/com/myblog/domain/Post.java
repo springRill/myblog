@@ -1,13 +1,23 @@
 package com.myblog.domain;
 
+import jakarta.persistence.*;
+
+
+@Entity
+@Table(name = "posts")
 public class Post {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private String text;
     private String tags;
     private String imagePath;
     private Integer likesCount;
+
+    public Post() {
+    }
 
     public Post(Long id, String title, String text, String tags, String imagePath, Integer likesCount) {
         this.id = id;

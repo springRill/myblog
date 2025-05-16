@@ -6,6 +6,7 @@ import com.myblog.dto.CommentDto;
 import com.myblog.dto.PostDto;
 import com.myblog.mapper.CommentMapper;
 import com.myblog.mapper.PostMapper;
+import com.myblog.repository.CommentRepository;
 import com.myblog.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +17,24 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+
     private final PostMapper postMapper;
     private final CommentMapper commentMapper;
 
-    public PostService(PostRepository postRepository, PostMapper postMapper, CommentMapper commentMapper) {
+    public PostService(PostRepository postRepository, CommentRepository commentRepository, PostMapper postMapper, CommentMapper commentMapper) {
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
         this.postMapper = postMapper;
         this.commentMapper = commentMapper;
     }
 
     public List<PostDto> findPosts(String search) {
-        List<Post> postList = postRepository.findPosts(search);
+        List<Post> postList = postRepository.findByTagsLike("%" + search + "%");
         List<PostDto> postDtoList = postList.stream()
                 .map(postMapper::toPostDto)
                 .peek(postDto -> {
-                    List<Comment> commentList = postRepository.getCommentsByPostId(postDto.getId());
+                    List<Comment> commentList = commentRepository.findByPostId(postDto.getId());
                     postDto.setComments(commentList.stream().map(commentMapper::toCommentDto).toList());
                 })
                 .collect(Collectors.toList());
@@ -38,8 +42,8 @@ public class PostService {
     }
 
     public PostDto getPostById(Long postId) {
-        PostDto postDto = postMapper.toPostDto(postRepository.getPostById(postId));
-        List<Comment> commentList = postRepository.getCommentsByPostId(postId);
+        PostDto postDto = postMapper.toPostDto(postRepository.findById(postId).orElseThrow());
+        List<Comment> commentList = commentRepository.findByPostId(postId);
         postDto.setComments(commentList.stream().map(commentMapper::toCommentDto).toList());
         return postDto;
     }
@@ -47,36 +51,43 @@ public class PostService {
     public Long addPost(PostDto postDto) {
         Post post = postMapper.toPost(postDto);
         post.setTags(post.getTags().trim().replaceAll("\\s{2,}", " "));
-        return this.postRepository.addPost(post);
+        return postRepository.save(post).getId();
     }
 
-    public void likePost(Long id, boolean like) {
-        this.postRepository.likePost(id, like);
+    public void likePost(Long postId, boolean like) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        if (like) {
+            post.setLikesCount(post.getLikesCount() + 1);
+        } else {
+            post.setLikesCount(post.getLikesCount() - 1);
+        }
+        postRepository.save(post);
     }
 
     public void editPost(PostDto postDto) {
         Post post = postMapper.toPost(postDto);
         post.setTags(post.getTags().trim().replaceAll("\\s{2,}", " "));
-        this.postRepository.editPost(post);
+        post.setLikesCount(postRepository.findById(post.getId()).orElseThrow().getLikesCount());
+        postRepository.save(post);
     }
 
     public void addComment(Long postId, CommentDto commentDto) {
         Comment comment = commentMapper.toComment(postId, commentDto);
-        this.postRepository.addComment(comment);
+        commentRepository.save(comment);
     }
 
     public void editComment(Long postId, CommentDto commentDto) {
         Comment comment = commentMapper.toComment(postId, commentDto);
-        this.postRepository.editComment(comment);
+        commentRepository.save(comment);
     }
 
     public void deleteComment(Long commentId) {
-        this.postRepository.deleteComment(commentId);
+        commentRepository.deleteById(commentId);
     }
 
     public void deletePost(Long postId) {
-        this.postRepository.deleteCommentsByPostId(postId);
-        this.postRepository.deletePost(postId);
+        commentRepository.deleteAll(commentRepository.findByPostId(postId));
+        postRepository.deleteById(postId);
     }
 
 }

@@ -27,11 +27,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/*
-@SpringJUnitConfig(classes = {WebConfiguration.class})
-@WebAppConfiguration
-@TestPropertySource(locations = "classpath:test-application.properties")
-*/
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -49,12 +44,11 @@ class PostsControllerIntegrationTest {
     @Autowired
     private ImageService imageService;
 
+    @Autowired
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build(); // Настройка с контекстом
-
         // Очистка базы данных
         jdbcTemplate.execute("DELETE FROM comments");
         jdbcTemplate.execute("DELETE FROM posts");
@@ -282,14 +276,6 @@ class PostsControllerIntegrationTest {
 
     @Test
     void deletePost() throws Exception {
-
-/*
-        @PostMapping(value = "/posts/{id}/delete")
-        public String deletePost(@PathVariable(name = "id") Long postId) {
-            postService.deletePost(postId);
-            return "redirect:/posts";
-        }
-*/
         assertEquals(2,  postService.findPosts("").size());
 
         Long postId = postService.findPosts("").getFirst().getId();

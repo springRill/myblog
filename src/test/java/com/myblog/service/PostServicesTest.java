@@ -14,10 +14,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/*
-@SpringJUnitConfig(classes = {WebConfiguration.class})
-@TestPropertySource(locations = "classpath:test-application.properties")
-*/
 @SpringBootTest
 @ActiveProfiles("test")
 class PostServicesTest {

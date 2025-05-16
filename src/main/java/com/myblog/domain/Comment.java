@@ -1,10 +1,19 @@
 package com.myblog.domain;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "comments")
 public class Comment {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long postId;
     private String text;
+
+    public Comment() {
+    }
 
     public Comment(Long id, Long postId, String text) {
         this.id = id;

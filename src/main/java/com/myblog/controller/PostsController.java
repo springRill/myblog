@@ -7,7 +7,6 @@ import com.myblog.service.ImageService;
 import com.myblog.service.PostService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
