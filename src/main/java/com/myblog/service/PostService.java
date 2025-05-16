@@ -30,7 +30,7 @@ public class PostService {
     }
 
     public List<PostDto> findPosts(String search) {
-        List<Post> postList = postRepository.findByTagsLike("%" + search + "%");
+        List<Post> postList = postRepository.findByTagsLikeOrderByIdAsc("%" + search + "%");
         List<PostDto> postDtoList = postList.stream()
                 .map(postMapper::toPostDto)
                 .peek(postDto -> {

@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface PostRepository extends ListCrudRepository<Post, Long> {
 
-    List<Post> findByTagsLike(String pattern);
+    List<Post> findByTagsLikeOrderByIdAsc(String pattern);
 }

@@ -32,10 +32,10 @@ class RepositoryTest {
 
     @Test
     void findPosts() {
-        assertEquals(0, postRepository.findByTagsLike("%tag1_no%").size());
-        assertEquals(2, postRepository.findByTagsLike("%").size());
-        assertEquals(1, postRepository.findByTagsLike("%tag1%").size());
-        assertEquals(2, postRepository.findByTagsLike("%tag2%").size());
+        assertEquals(0, postRepository.findByTagsLikeOrderByIdAsc("%tag1_no%").size());
+        assertEquals(2, postRepository.findByTagsLikeOrderByIdAsc("%").size());
+        assertEquals(1, postRepository.findByTagsLikeOrderByIdAsc("%tag1%").size());
+        assertEquals(2, postRepository.findByTagsLikeOrderByIdAsc("%tag2%").size());
     }
 
     @Test

@@ -10,6 +10,7 @@ target/
 .idea/dbnavigator.xml
 .idea/libraries/
 .idea/dbnavigator.xml
+.idea/
 *.iws
 *.iml
 *.ipr
