@@ -2,14 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+<!--
     <title>Витрина товаров</title>
+-->
+    <title>Редактирование сообщения</title>
 </head>
 
 <body>
-<!--
-<a href="/posts" style="float:right;">
--->
-<a th:href="'@{/posts}'" style="float:right;">
+<a th:href="@{/posts}" style="float:right;">
     <b>НА ГЛАВНУЮ &cudarrr;</b>
 </a>
 <form method="POST" th:action="@{${post==null ? '/posts' : '/posts/'+post.getId()}}" enctype="multipart/form-data">
